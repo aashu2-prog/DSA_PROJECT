@@ -16,13 +16,36 @@
 
 ---
 
-## 📖 Introduction
+## 🧠 How It Works (From a DSA Perspective)
 
-The **"Six Degrees of Wikipedia"** (or Wikiracing) is a classic problem: Given two arbitrary Wikipedia articles (e.g., *Albert Einstein* and *Quantum Computing*, or *India* and *Kathmandu*), what is the minimum number of hyperlinks needed to navigate from the start article to the target article?
+At its core, **WikiSolver** is an implementation of **Shortest Path on an Unweighted Directed Graph** using **Bidirectional BFS**:
 
-Wikipedia consists of over **6.8 million articles** in English alone, forming a massive, directed graph with an average branching factor of $b \approx 50\text{ to }300$ links per page. Exploring this graph with traditional search algorithms leads to combinatorial explosion.
+1. **Graph Representation**:
+   - **Nodes (Vertices)**: Wikipedia articles.
+   - **Directed Edges**: Hyperlinks between articles ($A \to B$ means Article A links to Article B).
+   - **Edge Weights**: Unweighted (each hop counts as 1 step).
 
-**WikiSolver** solves this problem in milliseconds ($\sim 200\text{ms}$ for 3-step paths and $< 600\text{ms}$ for 4 to 5-step paths) by combining **Bidirectional Breadth-First Search**, **parallel multi-level hash set intersection**, and an **interactive D3 force-directed visualizer**.
+2. **The Problem**:
+   - Finding the shortest path (minimum link clicks) from a **Start Node** to a **Target Node**.
+
+3. **The Algorithm: Bidirectional Breadth-First Search (Bidirectional BFS)**:
+   - **Standard BFS** expands outward from the start node level by level. Because each article has ~100+ links, the search tree explodes exponentially ($O(b^d)$).
+   - **Bidirectional BFS** runs two simultaneous searches:
+     - **Forward Search**: Explores outgoing links starting from the **Start** node.
+     - **Backward Search**: Explores incoming backlinks starting from the **Target** node.
+   - **Meeting in the Middle**: The algorithm stops as soon as both searches visit the same common article (intersection node). It then merges the two half-paths to form the complete shortest path.
+
+4. **Key Data Structures Used**:
+   - **Queue (`FIFO`)**: Handles level-by-level frontier expansion.
+   - **Hash Sets (`Set`)**:
+     - Fast $O(1)$ visited node tracking to avoid cycles.
+     - Instant $O(1)$ collision detection to check if the forward and backward searches have met.
+   - **Hash Maps (`Map`)**: Stores parent pointers to trace back and reconstruct the final path.
+
+5. **Why it's Fast ($O(b^{d/2})$ vs $O(b^d)$)**:
+   - For a 4-step path with an average branching factor of $b = 100$:
+     - **Standard BFS**: Explores $100^4 = \mathbf{100,000,000}$ nodes.
+     - **Bidirectional BFS**: Explores $2 \times 100^2 = \mathbf{20,000}$ nodes (**5,000× fewer operations**).
 
 ---
 
